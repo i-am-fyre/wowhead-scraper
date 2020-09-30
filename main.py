@@ -7,7 +7,7 @@ language = ["en", "de","es","fr","it","pt","ru","ko","cn"]
 item_id_start = 1
 item_id_end = 100
 
-for i in range (item_id_start,item_id_end):
+for i in range (item_id_start,item_id_end+1):
     # first, check if item exists
     test_url="https://en.classic.wowhead.com/item="+str(i)
     test_page = requests.get(test_url)
