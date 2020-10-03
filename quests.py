@@ -19,7 +19,7 @@ for c in category:
         if test_soup.find("h1", {"class": "heading-size-1"}).text != "Quests":
             print("URL: https://classic.wowhead.com/"+c+"="+str(i))
             #second, pull translations
-            for l in language:
+            for li, l in enumerate(language):
                 with open(c + '_output_' + l + '.csv', mode='a') as csv_output:
                     csv_writer = csv.writer(csv_output, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator='\n',)
 
@@ -123,18 +123,20 @@ for c in category:
                     #formatting to MaNGOS database style
                     # -- NOTE: This is not complete.
                     # ---- More formats need to be added to wowhead_format and mangos_format
-                    # ---- Currently, this will only fix English wowhead tags, e.g. 'name' but not 'nom'
                     # ---- Will need to format the quotation marks properly
                     # ---- There are some outputs where there is no space between a period and the first letter of a new paragraph
                     # ------ while scraping, if there is a <p> or <br> in the text, then it should put in paragraph breaks ("\n")?? <--- This would be ideal, to keep proper formatting for in game use.
-                    wowhead_format = ["<name>", "<class>"]
+                    
+                                      #English, German, Spanish, French, Italian, Portuquese, Russian, Korean, Chinese
+                    wowhead_format = [["<name>", "<Name>", "<nombre>", "<nom>"], 
+                                      ["<class>", "<Klasse>", "<clase>", "<classe>"]]
                     mangos_format = ["$N", "$C"]
                     for index, item in enumerate(wowhead_format):
-                        title = title.replace(item,mangos_format[index])
-                        details = details.replace(item,mangos_format[index])
-                        objectives = details.replace(item,mangos_format[index])
-                        offerRewardText = offerRewardText.replace(item,mangos_format[index])
-                        requestItemsText = requestItemsText.replace(item,mangos_format[index])
+                        title = title.replace(item[li],mangos_format[index])
+                        details = details.replace(item[li],mangos_format[index])
+                        objectives = details.replace(item[li],mangos_format[index])
+                        offerRewardText = offerRewardText.replace(item[li],mangos_format[index])
+                        requestItemsText = requestItemsText.replace(item[li],mangos_format[index])
 
 
                     #write to csv
