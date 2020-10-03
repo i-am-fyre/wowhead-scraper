@@ -39,7 +39,7 @@ for c in category:
 
                     # get id title
                     try:
-                        title = soup.find("h1", {"class": "heading-size-1"}).text
+                        title = soup.find("h1", {"class": "heading-size-1"}).text.strip()
                     except:
                         title = ""
                     print("[" + l + "] title: " + title)
@@ -93,28 +93,28 @@ for c in category:
 
                     # get id objectiveText1
                     try:
-                        objectiveText1 = soup.find("table", {"class": "iconlist"}).select("tr")[0].text
+                        objectiveText1 = soup.find("table", {"class": "iconlist"}).select("tr")[0].text.strip()
                     except:
                         objectiveText1 = ""
                     print("[" + l + "] objectiveText1: " + str(objectiveText1))
 
                     # get id objectiveText2
                     try:
-                        objectiveText2 = soup.find("table", {"class": "iconlist"}).select("tr")[1].text
+                        objectiveText2 = soup.find("table", {"class": "iconlist"}).select("tr")[1].text.strip()
                     except:
                         objectiveText2 = ""
                     print("[" + l + "] objectiveText2: " + str(objectiveText2))
 
                     # get id objectiveText3
                     try:
-                        objectiveText3 = soup.find("table", {"class": "iconlist"}).select("tr")[2].text
+                        objectiveText3 = soup.find("table", {"class": "iconlist"}).select("tr")[2].text.strip()
                     except:
                         objectiveText3 = ""
                     print("[" + l + "] objectiveText3: " + str(objectiveText3))
 
                     # get id objectiveText4
                     try:
-                        objectiveText4 = soup.find("table", {"class": "iconlist"}).select("tr")[3].text
+                        objectiveText4 = soup.find("table", {"class": "iconlist"}).select("tr")[3].text.strip()
                     except:
                         objectiveText4 = ""
                     print("[" + l + "] objectiveText4: " + str(objectiveText4))
