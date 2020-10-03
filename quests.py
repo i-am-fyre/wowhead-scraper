@@ -120,6 +120,23 @@ for c in category:
                     print("[" + l + "] objectiveText4: " + str(objectiveText4))
 
 
+                    #formatting to MaNGOS database style
+                    # -- NOTE: This is not complete.
+                    # ---- More formats need to be added to wowhead_format and mangos_format
+                    # ---- Currently, this will only fix English wowhead tags, e.g. 'name' but not 'nom'
+                    # ---- Will need to format the quotation marks properly
+                    # ---- There are some outputs where there is no space between a period and the first letter of a new paragraph
+                    # ------ while scraping, if there is a <p> or <br> in the text, then it should put in paragraph breaks ("\n")?? <--- This would be ideal, to keep proper formatting for in game use.
+                    wowhead_format = ["<name>", "<class>"]
+                    mangos_format = ["$N", "$C"]
+                    for index, item in enumerate(wowhead_format):
+                        title = title.replace(item,mangos_format[index])
+                        details = details.replace(item,mangos_format[index])
+                        objectives = details.replace(item,mangos_format[index])
+                        offerRewardText = offerRewardText.replace(item,mangos_format[index])
+                        requestItemsText = requestItemsText.replace(item,mangos_format[index])
+
+
                     #write to csv
                     csv_writer.writerow([i, title, details, objectives, offerRewardText, requestItemsText, endText, objectiveText1, objectiveText2, objectiveText3, objectiveText4])
             print("=========")
