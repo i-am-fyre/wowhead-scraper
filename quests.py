@@ -1,5 +1,15 @@
 #!/usr/bin/env python3.7
 
+########## TO-DO ###########
+    #formatting to MaNGOS database style
+    # -- Will need to format the quotation marks properly
+    # -- There are some outputs where there is no space between a period and the first letter of a new paragraph
+    # ---- while scraping, if there is a <p> or <br> in the text, then it should put in paragraph breaks ("$B")?? <--- This would be ideal, to keep proper formatting for in game use.
+    # -- gender_phrases only covers English phrasing at the moment (may not be a complete list either).
+    # -- what is the equivalent of "EndText" on Wowhead?
+    # -- add a new column in csv for "Added in patch" -- had problems trying to pull this data from Wowhead because it's created in a script, and not in the HTML.
+
+import re
 import requests
 from bs4 import BeautifulSoup, NavigableString, Tag
 import csv
@@ -16,11 +26,19 @@ for c in category:
         test_page = requests.get(test_url)
         test_soup = BeautifulSoup(test_page.content, 'html.parser')
 
-        if test_soup.find("h1", {"class": "heading-size-1"}).text != "Quests":
+        if test_soup.find("h1", {"class": "heading-size-1"}).text not in ["Quests", "<UNUSED>"]:
             print("URL: https://classic.wowhead.com/"+c+"="+str(i))
             #second, pull translations
             for li, l in enumerate(language):
-                with open(c + '_output_' + l + '.csv', mode='a') as csv_output:
+                gender_phrases = ["succubus/infernal", "he/she", "priest/priestess", "boy/girl", "lad/lass", "son/daughter", "brother/sister", "brudda/sista", "poppy/mama", "himself/herself", "man/lady", "him/her", "his/her", "sons/daughters", "boys/girls", "brothers/sisters","handsome/pretty", "good sir/my lady", "male/female", "sir/madam", "buddy/lady", "man/woman", "men/women", "sir/miss", "fella/lady", "sir/ma'am", "himself/herself", "dad/mom", "father/mother", "laddy/lassy", "lad/missy", "king/queen", "Mr./Ms.", "fellow/sister", "mister/missy", "mister/miss", "hero/heroine", "grizzled/tough", "sonny/missy", "Mr./Miss", "hot stuff/girly", "boyo/girly", "man/sweetheart", "lord/lady", "my son/my daughter", "man/strong", "buddy/lassy", "guy/lady", "tough-guy/hotshot", "good lad/doll", "pal/lass", "brother/miss", "friend/missy", "daddy/mama", "sonny/lass", "prince/princess", "boy/beautiful flower", "hunter/huntress", "big arms/funny hair", "Hey there, handsome! I've had my eye on those big, beefy biceps ever since you stepped into town./What're you looking at, ugly? I've seen you walking around Razor Hill, trying to steal MY men from me!", "Thanks sweetie!: Don't ask why, just get to it!", "Hey handsome, welcome back! You wouldn't mind running another errand, would you? I'd be EVER so grateful.../You! Stop right there, you tramp! I'm not finished with you yet.", "See you soon, beefcake!/Get cracking, missy!", "Oh, sweetie, I just remembered!/Sorry if I've been mean to you. Sometimes I get a little jealous when other women come into town, as I'm a little insecure about my appearance.", "What, we can't see other people?/Thanks.", "buddy/gorgeous","he's/she's", "SWASHBUCKLING HERO/BREATHTAKING HEROINE", "gentleman/lady", "friend/young lady", "Mr./Miss", "boys/three", "Drinkin' ale/Holdin' hands", "Sumi and Tumi missed you, you should say hi after your lesson/I have heard tales of your adventures, sounds like you have been busy", "Jackson/Princess", "waiter/watress", "boyo/girlie", "mon/sis", "Hey there cutie, you looking for a ride to Grom'gol? I hear it gets mighty steamy down in those jungles, maybe I could join you for a short vacation, show you a real jungle cat./Come, take a trip to the wonderful, gorgeous, tropical jungles of Stranglethorn. That's right, you too can be spending your time sunbathing by the crystal blue waters while I stand here in this unbearable heat with nothing to look at but my brother Frezza all day! Enjoy your trip!", "noble sir/gentle lady", "fella/lady", "Good job!/We should get t ogether for drinks sometime, what do you say?", "man!/gorgeous!", "see you around./Ihope we get to continue to do so.", "boy/lovely", "son/young lady", "boyo/girly", "go out some place for dinnger?/get together for a girl's night?", "man/chicky", "dude/dudette", "sir/madame", "pal/sugar", "buddy/ma'am", "sir/dame", "bug guy/bunny", "champ/lady", "man/kitten", "master/mistress", "bud/lady", "bud/girlie", "dude/toots", "babe/hon", "Candy/Chip", "man/babe", "skilled/lovely", "brave/fair", "handsome/gorgeous", "sugar/scumbag", "scrub/trash", "patriarch: matriarch", "Mortal/mortal", "sweetie/girl", "iskal/searched", "master/madam", "I see that look in your eyes, do not think I will tolerate any insolence. Thrall himself has declared the Hordes females to be on equal footing with you men. Disrespect me in the slightest, and you will know true pain./I'm happy to have met you. Thrall will be glad to know that more females like you and I are taking the initiative to push forward in the Barrens.", "hot stuff/girly", "to leave/set off", "ot it/found it", "Invulnerable/Invulnerable", "sam/yourself", "guy/damsel", "Heard/Heard", "ser/ma'am", "mother/damsel", "friend/girlfriend", "sudar/ma'am", "yunosh/damsel", "Glorified/Glorified", "Hi, handsome! Want to ride in Grom'gol? Down there, in the jungle, they say it's hot ... But I’d even make you company, I showed you a real reed cat .../Hey, beauty, do you want to visit the wonderful, luxurious tropical jungle of Stranglethorn Valley? Sunbathe on the shores of crystal clear lakes while I'm soaring in the heat in the company of my brother Freza? In general, have a nice flight !", "moy/mine", "b/sister", "Sumi and Tumi miss you, stop by after the lesson: I heard something about your adventures, it looks like you haven’t wasted your time./Well, let's see what you managed to learn during this time.", "gone/gone", "such a hero/such a heroine", "uncle/aunt", "sam/itself", "yuny/young", "sam/yourself", "dear young man/dear girl", "parent/girl", "ranhen/wounded", "too/noticed", "healthy/wide in the bone", "my friend/dear", "sam/myself", "kind lord/kind lady", "brave guy", "Mr. Lord/Madam", "yunosh/girl", "my friend/wanderer", "investigated/examined", "master/mistress", "messed up/a bunch of bombers", "trade magnate/trade mogul", "trading prince/trading princess", "so experienced/so cute", "fella/lady", "soldier/hon", "man/honey", "man/sweetheart", "ya/yer", "fellow/gal", "Milord/Milady", "da-da/ma-ma", "flyboy/flygirl", "magister/magistrix", "how's it hangin?/you look pretty", "manly/womanly", "dearest/dear", "pal/gal", "bub/lady", "Right away", "sir/Right away ma'am", "Sir, yes sir", "Ma'am, yes ma'am", "sea giant/harpy", "you/a pretty little thing like you", "bub/toots", "sweet-thing/lady", "sister/brother", "mister/sister", "handsome/lady", "boyfriend's/girlfriend's", "daddy/pie", "mish/mishter", "fisherman/fisherwoman", "chief/sweetie", "Hey there, handsome. You want to go somewhere after this?  Just you and me?/Back off, skank. I'm trying to put out a vibe here, and you're ruining it.", "Hey there, stranger. I'd brawl with you any day of the week. And I promise you, it'll last longer than 2 minutes.$B$B<Helga winks disarmingly.>;I saw you making eyes at Harr back there. That tauren is MINE.$B$BWhy don't you drag your ugly, gold-digging face to another blimp?"]
+                for gp in gender_phrases:
+                    if gp.lower() in test_soup.text.lower():
+                        filename = c + '_manual_checks_required_' + l + '_test.csv'
+                        break
+                    else:
+                        filename = c + '_output_' + l + '_test.csv'
+
+                with open(filename, mode='a') as csv_output:
                     csv_writer = csv.writer(csv_output, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator='\n',)
 
                     if l == "en":
@@ -119,18 +137,11 @@ for c in category:
                         objectiveText4 = ""
                     print("[" + l + "] objectiveText4: " + str(objectiveText4))
 
-
-                    #formatting to MaNGOS database style
-                    # -- NOTE: This is not complete.
-                    # ---- More formats need to be added to wowhead_format and mangos_format
-                    # ---- Will need to format the quotation marks properly
-                    # ---- There are some outputs where there is no space between a period and the first letter of a new paragraph
-                    # ------ while scraping, if there is a <p> or <br> in the text, then it should put in paragraph breaks ("\n")?? <--- This would be ideal, to keep proper formatting for in game use.
-                    
-                                      #English, German, Spanish, French, Italian, Portuquese, Russian, Korean, Chinese
-                    wowhead_format = [["<name>", "<Name>", "<nombre>", "<nom>"], 
-                                      ["<class>", "<Klasse>", "<clase>", "<classe>"]]
-                    mangos_format = ["$N", "$C"]
+                                    # English, German, Spanish, French, Italian, Portuquese, Russian, Korean, Chinese
+                    wowhead_format = [["<name>", "<Name>", "<nombre>", "<nom>", "<name_it>", "<name_pt>", "<name_ru>", "<name_ko>", "<name_cn>"], 
+                                      ["<class>", "<Klasse>", "<clase>", "<classe>", "<class_it>", "<class_pt>", "<class_ru>", "<class_ko>", "<class_cn>"],
+                                      ["<race>", "<Volk>", "<raza>", "<race>", "<race>", "<race>", "<race>", "<race>", "<race>"]]
+                    mangos_format = ["$N", "$C", "$R"]
                     for index, item in enumerate(wowhead_format):
                         title = title.replace(item[li],mangos_format[index])
                         details = details.replace(item[li],mangos_format[index])
@@ -138,9 +149,9 @@ for c in category:
                         offerRewardText = offerRewardText.replace(item[li],mangos_format[index])
                         requestItemsText = requestItemsText.replace(item[li],mangos_format[index])
 
-
                     #write to csv
                     csv_writer.writerow([i, title, details, objectives, offerRewardText, requestItemsText, endText, objectiveText1, objectiveText2, objectiveText3, objectiveText4])
+                    csv_output.close()
             print("=========")
-
 print("DONE")
+
