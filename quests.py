@@ -151,7 +151,5 @@ for c in category:
                     #write to csv
                     csv_writer.writerow([i, title, details, objectives, offerRewardText, requestItemsText, endText, objectiveText1, objectiveText2, objectiveText3, objectiveText4])
                     csv_output.close()
-
-                    print(soup.find("div", {"id": "lknlksndgg-completion"}).text)
             print("=========")
 print("DONE")
