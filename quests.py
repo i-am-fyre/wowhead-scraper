@@ -3,6 +3,7 @@
 ########## TO-DO ###########
     #formatting to MaNGOS database style
     # -- Will need to format the quotation marks properly so that they don't break something.
+    # -- endText is not implemented -- unsure as to what text on the classic.wowhead.com site belongs in this column.
 
 import re
 import requests
@@ -13,6 +14,8 @@ category = ["quest"]
 language = ["en", "de","es","fr","it","pt","ru","ko","cn"]
 id_start = 1
 id_end = 1000
+
+print_debug = True #True = print output from console in terminal ; False = no print output
 
 for c in category:
     for i in range (id_start,id_end+1):
@@ -56,7 +59,6 @@ for c in category:
                         title = soup.find("h1", {"class": "heading-size-1"}).text.strip()
                     except:
                         title = ""
-                    print("[" + l + "] title: " + title)
 
                     # get id details
                     try:
@@ -76,7 +78,6 @@ for c in category:
                     except:
                         details = ""
                     details = re.sub(r'([.?!])([a-zA-Z])', r'\1$B$B\2', details)
-                    print("[" + l + "] details: " + details)
 
                     # get id objectives
                     try:
@@ -84,7 +85,6 @@ for c in category:
                     except:
                         objectives = ""
                     objectives = re.sub(r'([.?!])([a-zA-Z])', r'\1$B$B\2', objectives)
-                    print("[" + l + "] objectives: " + objectives)
 
                     # get id offer reward text
                     try:
@@ -92,49 +92,44 @@ for c in category:
                     except:
                         offerRewardText = ""
                     offerRewardText = re.sub(r'([.?!])([a-zA-Z])', r'\1$B$B\2', offerRewardText)
-                    print("[" + l + "] offerRewardText: " + offerRewardText)
 
                     # get id requestItemsText
                     try:
                         requestItemsText = soup.find("div", {"id": "lknlksndgg-progress"}).text.strip()
                     except:
                         requestItemsText = ""
-                    print("[" + l + "] requestItemsText: " + requestItemsText)
+                    requestItemsText = re.sub(r'([.?!])([a-zA-Z])', r'\1$B$B\2', requestItemsText)
 
                     # get id end text  --   NOT IMPLEMENTED
                     try:
                         endText = "NOT IMPLEMENTED"
                     except:
                         endText = "NOT IMPLEMENTED"
-                    print("[" + l + "] endText: " + endText)
+
 
                     # get id objectiveText1
                     try:
                         objectiveText1 = soup.find("table", {"class": "iconlist"}).select("tr")[0].text.strip()
                     except:
                         objectiveText1 = ""
-                    print("[" + l + "] objectiveText1: " + str(objectiveText1))
 
                     # get id objectiveText2
                     try:
                         objectiveText2 = soup.find("table", {"class": "iconlist"}).select("tr")[1].text.strip()
                     except:
                         objectiveText2 = ""
-                    print("[" + l + "] objectiveText2: " + str(objectiveText2))
 
                     # get id objectiveText3
                     try:
                         objectiveText3 = soup.find("table", {"class": "iconlist"}).select("tr")[2].text.strip()
                     except:
                         objectiveText3 = ""
-                    print("[" + l + "] objectiveText3: " + str(objectiveText3))
 
                     # get id objectiveText4
                     try:
                         objectiveText4 = soup.find("table", {"class": "iconlist"}).select("tr")[3].text.strip()
                     except:
                         objectiveText4 = ""
-                    print("[" + l + "] objectiveText4: " + str(objectiveText4))
 
                                     # English, German, Spanish, French, Italian, Portuquese, Russian, Korean, Chinese
                     wowhead_format = [["<name>", "<Name>", "<nombre>", "<nom>", "<name_it>", "<name_pt>", "<name_ru>", "<name_ko>", "<name_cn>"], 
@@ -144,9 +139,21 @@ for c in category:
                     for index, item in enumerate(wowhead_format):
                         title = title.replace(item[li],mangos_format[index])
                         details = details.replace(item[li],mangos_format[index])
-                        objectives = details.replace(item[li],mangos_format[index])
+                        objectives = objectives.replace(item[li],mangos_format[index])
                         offerRewardText = offerRewardText.replace(item[li],mangos_format[index])
                         requestItemsText = requestItemsText.replace(item[li],mangos_format[index])
+                        
+                    if print_debug:
+                        print("[" + l + "] title: " + title)
+                        print("[" + l + "] details: " + details)
+                        print("[" + l + "] objectives: " + objectives)
+                        print("[" + l + "] offerRewardText: " + offerRewardText)
+                        print("[" + l + "] requestItemsText: " + requestItemsText)
+                        print("[" + l + "] endText: " + endText)
+                        print("[" + l + "] objectiveText1: " + str(objectiveText1))
+                        print("[" + l + "] objectiveText2: " + str(objectiveText2))
+                        print("[" + l + "] objectiveText3: " + str(objectiveText3))
+                        print("[" + l + "] objectiveText4: " + str(objectiveText4))
 
                     #write to csv
                     csv_writer.writerow([i, title, details, objectives, offerRewardText, requestItemsText, endText, objectiveText1, objectiveText2, objectiveText3, objectiveText4])
