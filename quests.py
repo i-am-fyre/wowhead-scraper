@@ -1,5 +1,9 @@
 #!/usr/bin/env python3.7
 
+########## DEPENDENCIES ##########
+# pip install googletrans==3.1.0a0 langdetect
+
+
 ########## TO-DO ###########
     #formatting to MaNGOS database style
     # -- Will need to format the quotation marks properly so that they don't break something.
@@ -8,14 +12,21 @@
 import re
 import requests
 from bs4 import BeautifulSoup, NavigableString, Tag
+from langdetect import detect
+from googletrans import Translator
 import csv
+
+# init the Google API translator
+translator = Translator()
 
 category = ["quest"]
 language = ["en", "de","es","fr","it","pt","ru","ko","cn"]
+
 id_start = 1
 id_end = 1000
 
 print_debug = True #True = print output from console in terminal ; False = no print output
+do_translate = True #True = output will translate the text to the expected language ; False = no translations, will scrape text as found.
 
 for c in category:
     for i in range (id_start,id_end+1):
@@ -37,7 +48,7 @@ for c in category:
                     else:
                         filename = c + '_output_' + l + '_test.csv'
 
-                with open(filename, mode='a') as csv_output:
+                with open(filename, mode='a', encoding='utf-8-sig') as csv_output:
                     csv_writer = csv.writer(csv_output, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator='\n',)
 
                     if l == "en":
@@ -130,18 +141,6 @@ for c in category:
                         objectiveText4 = soup.find("table", {"class": "iconlist"}).select("tr")[3].text.strip()
                     except:
                         objectiveText4 = ""
-
-                                    # English, German, Spanish, French, Italian, Portuquese, Russian, Korean, Chinese
-                    wowhead_format = [["<name>", "<Name>", "<nombre>", "<nom>", "<name_it>", "<name_pt>", "<name_ru>", "<name_ko>", "<name_cn>"], 
-                                      ["<class>", "<Klasse>", "<clase>", "<classe>", "<class_it>", "<class_pt>", "<class_ru>", "<class_ko>", "<class_cn>"],
-                                      ["<race>", "<Volk>", "<raza>", "<race>", "<race>", "<race>", "<race>", "<race>", "<race>"]]
-                    mangos_format = ["$N", "$C", "$R"]
-                    for index, item in enumerate(wowhead_format):
-                        title = title.replace(item[li],mangos_format[index])
-                        details = details.replace(item[li],mangos_format[index])
-                        objectives = objectives.replace(item[li],mangos_format[index])
-                        offerRewardText = offerRewardText.replace(item[li],mangos_format[index])
-                        requestItemsText = requestItemsText.replace(item[li],mangos_format[index])
                         
                     if print_debug:
                         print("[" + l + "] title: " + title)
@@ -154,6 +153,109 @@ for c in category:
                         print("[" + l + "] objectiveText2: " + str(objectiveText2))
                         print("[" + l + "] objectiveText3: " + str(objectiveText3))
                         print("[" + l + "] objectiveText4: " + str(objectiveText4))
+
+                    if do_translate:
+                        print("---")
+                        print(" Translating...")
+
+                        if l == "cn":
+                            dest_l = "zh-cn"
+                        else:
+                            dest_l = l
+
+                        try:
+                            if dest_l != detect(title):
+                                translated_text = translator.translate(title, dest=dest_l).text
+                                print("title [Detected: " + detect(title) + "] [Expected: " + dest_l + "] : " + title + "   >>>   " + translated_text)
+                                title = translated_text
+                        except:
+                            print("Unable to translate title.")
+
+                        try:
+                            if dest_l != detect(details):
+                                translated_text = translator.translate(details, dest=dest_l).text
+                                print("details Detected: " + detect(details) + "] [Expected: " + dest_l + "] : " + details + "   >>>   " + translated_text)
+                                details = translated_text
+                        except:
+                            print("Unable to translate details.")
+
+                        try:
+                            if dest_l != detect(objectives):
+                                translated_text = translator.translate(objectives, dest=dest_l).text
+                                print("objectives [Detected: " + detect(objectives) + "] [Expected: " + dest_l + "] : " + objectives + "   >>>   " + translated_text)
+                                objectives = translated_text
+                        except:
+                            print("Unable to translate objectives.")
+
+                        try:
+                            if dest_l != detect(offerRewardText):
+                                translated_text = translator.translate(offerRewardText, dest=dest_l).text
+                                print("offerRewardText [Detected: " + detect(offerRewardText) + "] [Expected: " + dest_l + "] : " + offerRewardText + "   >>>   " + translated_text)
+                                offerRewardText = translated_text
+                        except:
+                            print("Unable to translate offerRewardText.")
+
+                        try:
+                            if dest_l != detect(requestItemsText):
+                                translated_text = translator.translate(requestItemsText, dest=dest_l).text
+                                print("requestItemsText [Detected: " + detect(requestItemsText) + "] [Expected: " + dest_l + "] : " + requestItemsText + "   >>>   " + translated_text)
+                                requestItemsText = translated_text
+                        except:
+                            print("Unable to translate requestItemsText.")
+
+                        # This is commented out until endText can be properly implemented.
+                        # try:
+                        #     if dest_l != detect(endText):
+                        #         translated_text = translator.translate(endText, dest=dest_l).text
+                        #         print("endText [Detected: " + detect(endText) + "] [Expected: " + dest_l + "] : " + endText + "   >>>   " + translated_text)
+                        #         endText = translated_text
+                        # except:
+                        #     print("Unable to translate endText.")
+
+                        try:
+                            if dest_l != detect(objectiveText1):
+                                translated_text = translator.translate(objectiveText1, dest=dest_l).text
+                                print("objectiveText1 [Detected: " + detect(objectiveText1) + "] [Expected: " + dest_l + "] : " + objectiveText1 + "   >>>   " + translated_text)
+                                objectiveText1 = translated_text
+                        except:
+                            print("Unable to translate objectiveText1.")
+
+                        try:
+                            if dest_l != detect(objectiveText2):
+                                translated_text = translator.translate(objectiveText2, dest=dest_l).text
+                                print("objectiveText2 [Detected: " + detect(objectiveText2) + "] [Expected: " + dest_l + "] : " + objectiveText2 + "   >>>   " + translated_text)
+                                objectiveText2 = translated_text
+                        except:
+                            print("Unable to translate objectiveText2.")
+
+                        try:
+                            if dest_l != detect(objectiveText3):
+                                translated_text = translator.translate(objectiveText3, dest=dest_l).text
+                                print("objectiveText3 [Detected: " + detect(objectiveText3) + "] [Expected: " + dest_l + "] : " + objectiveText3 + "   >>>   " + translated_text)
+                                objectiveText3 = translated_text
+                        except:
+                            print("Unable to translate objectiveText3.")
+
+                        try:
+                            if dest_l != detect(objectiveText4):
+                                translated_text = translator.translate(objectiveText4, dest=dest_l).text
+                                print("objectiveText4 [Detected: " + detect(objectiveText4) + "] [Expected: " + dest_l + "] : " + objectiveText4 + "   >>>   " + translated_text)
+                                objectiveText4 = translated_text
+                        except:
+                            print("Unable to translate objectiveText4.")
+                    print("---")
+
+                                    # English, German, Spanish, French, Italian, Portuquese, Russian, Korean, Chinese
+                    wowhead_format = [["<name>", "<Name>", "<nombre>", "<nom>", "<name>", "<name>", "<name>", "<name>", "<name>"], 
+                                      ["<class>", "<Klasse>", "<clase>", "<classe>", "<class>", "<class>", "<класс>", "<class>", "<class>"],
+                                      ["<race>", "<Volk>", "<raza>", "<race>", "<race>", "<race>", "<race>", "<race>", "<race>"]]
+                    mangos_format = ["$N", "$C", "$R"]
+                    for index, item in enumerate(wowhead_format):
+                        title = title.replace(item[li],mangos_format[index])
+                        details = details.replace(item[li],mangos_format[index])
+                        objectives = objectives.replace(item[li],mangos_format[index])
+                        offerRewardText = offerRewardText.replace(item[li],mangos_format[index])
+                        requestItemsText = requestItemsText.replace(item[li],mangos_format[index])
 
                     #write to csv
                     csv_writer.writerow([i, title, details, objectives, offerRewardText, requestItemsText, endText, objectiveText1, objectiveText2, objectiveText3, objectiveText4])
